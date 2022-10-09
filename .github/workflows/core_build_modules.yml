@@ -5,6 +5,9 @@ on:
       module_repo:
         required: true
         type: string
+      module_branch:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -26,6 +29,7 @@ jobs:
         with:
           submodules: 'recursive'
           path: 'modules/${{ inputs.module_repo }}'
+          ref: ${{ inputs.module_branch }}
       - name: Cache
         uses: actions/cache@v2
         with:
