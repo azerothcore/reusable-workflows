@@ -44,6 +44,11 @@ jobs:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
         run: source ./apps/ci/ci-conf-core.sh
+      - name: cpp check
+        run: |
+          sudo apt update -y
+          sudo apt install -y cppcheck
+          cppcheck --force --inline-suppr modules/
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
