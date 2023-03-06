@@ -52,3 +52,8 @@ jobs:
         run: source ./apps/ci/ci-error-check.sh
       - name: Run unit tests
         run: source ./apps/ci/ci-run-unit-tests.sh
+      - name: cpp check
+        run: |
+          sudo apt update -y
+          sudo apt install -y cppcheck
+          cppcheck --force --inline-suppr modules/
