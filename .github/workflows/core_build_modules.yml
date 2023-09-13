@@ -48,7 +48,12 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt install -y cppcheck
-          cppcheck --force --inline-suppr modules/
+          cppcheck --force --inline-suppr modules/ --output-file=report.txt
+          if [ -s report.txt ]; then
+            cat report.txt
+            exit 1
+          fi
+
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
