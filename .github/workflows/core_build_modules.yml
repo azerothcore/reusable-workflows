@@ -48,7 +48,7 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt install -y cppcheck
-          cppcheck --force --inline-suppr modules/ --output-file=report.txt
+          cppcheck --force --inline-suppr --suppressions-list=cppchecksuppressions.txt modules/ --output-file=report.txt
           if [ -s report.txt ]; then
             cat report.txt
             exit 1
