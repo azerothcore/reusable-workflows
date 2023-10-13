@@ -1,0 +1,2 @@
+*:modules/mod-eluna/src/lualib/*
+*:modules/mod-eluna/src/LuaEngine/libs/*
