@@ -27,6 +27,7 @@ jobs:
           submodules: 'recursive'
       - uses: actions/checkout@v2
         with:
+          repository: ${{ GITHUB_REPOSITORY }}
           path: 'reusable-workflows'
       - uses: actions/checkout@v2
         with:
