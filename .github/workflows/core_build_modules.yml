@@ -27,7 +27,7 @@ jobs:
           submodules: 'recursive'
       - uses: actions/checkout@v2
         with:
-          repository: ${{ GITHUB_REPOSITORY }}
+          repository: 'azerothcore/reusable-workflows'
           path: 'reusable-workflows'
       - uses: actions/checkout@v2
         with:
