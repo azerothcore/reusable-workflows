@@ -27,6 +27,9 @@ jobs:
           submodules: 'recursive'
       - uses: actions/checkout@v2
         with:
+          path: 'reusable-workflows'
+      - uses: actions/checkout@v2
+        with:
           submodules: 'recursive'
           path: 'modules/${{ inputs.module_repo }}'
           ref: ${{ inputs.module_branch }}
@@ -48,7 +51,7 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt install -y cppcheck
-          cppcheck --force --inline-suppr --suppressions-list=cppchecksuppressions.txt --output-file=report.txt modules/
+          cppcheck --force --inline-suppr --suppressions-list=reusable-workflows/cppchecksuppressions.txt --output-file=report.txt modules/
           if [ -s report.txt ]; then
             cat report.txt
             exit 1
