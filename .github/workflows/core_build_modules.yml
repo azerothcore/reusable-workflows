@@ -20,7 +20,7 @@ jobs:
               CC: clang-18
               CXX: clang++-18
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }}-${{ matrix.compiler.CC }}-pch
+    name: ${{ matrix.os }}-${{ matrix.compiler.CC }}
     if: github.repository == 'azerothcore/azerothcore-wotlk' && !github.event.pull_request.draft
     steps:
       - uses: actions/checkout@v4
