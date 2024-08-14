@@ -14,40 +14,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [clang]
-    runs-on: ubuntu-20.04
-    name: ${{ matrix.compiler }}
-    env:
-      COMPILER: ${{ matrix.compiler }}
+        include:
+          - os: ubuntu-24.04
+            compiler:
+              CC: clang-18
+              CXX: clang++-18
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}-${{ matrix.compiler.CC }}
+    # if: !github.event.pull_request.draft
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: 'azerothcore/azerothcore-wotlk'
           ref: 'master'
           submodules: 'recursive'
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: 'azerothcore/reusable-workflows'
           path: 'reusable-workflows'
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
           path: 'modules/${{ inputs.module_repo }}'
           ref: ${{ inputs.module_branch }}
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: var/ccache
-          key: ccache:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}
+          key: ccache:${{ matrix.compiler.CC }}:${{ github.ref }}:${{ github.sha }}
           restore-keys: |
-            ccache:${{ matrix.compiler }}:${{ github.ref }}
-            ccache:${{ matrix.compiler }}
-      - name: Configure OS
-        run: source ./acore.sh install-deps
-        env:
-          CONTINUOUS_INTEGRATION: true
-      - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf-core.sh
+            ccache:${{ matrix.compiler.CC }}:${{ github.ref }}
+            ccache:${{ matrix.compiler.CC }}
+      - uses: ./.github/actions/linux-build
+        with:
+          CC: ${{ matrix.compiler.CC }}
+          CXX: ${{ matrix.compiler.CXX }}
       - name: cpp check
         run: |
           sudo apt update -y
@@ -57,12 +58,3 @@ jobs:
             cat report.txt
             exit 1
           fi
-
-      - name: Build
-        run: source ./apps/ci/ci-compile.sh
-      - name: Dry run
-        run: source ./apps/ci/ci-dry-run.sh worldserver
-      - name: Check startup errors
-        run: source ./apps/ci/ci-error-check.sh
-      - name: Run unit tests
-        run: source ./apps/ci/ci-run-unit-tests.sh
