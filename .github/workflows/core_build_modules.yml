@@ -21,7 +21,7 @@ jobs:
               CXX: clang++-18
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}-${{ matrix.compiler.CC }}
-    if: !github.event.pull_request.draft
+    # if: !github.event.pull_request.draft
     steps:
       - uses: actions/checkout@v4
         with:
