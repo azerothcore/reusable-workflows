@@ -49,3 +49,12 @@ jobs:
         with:
           CC: ${{ matrix.compiler.CC }}
           CXX: ${{ matrix.compiler.CXX }}
+      - name: cpp check
+        run: |
+          sudo apt update -y
+          sudo apt install -y cppcheck
+          cppcheck --force --inline-suppr --suppressions-list=reusable-workflows/cppchecksuppressions.txt --output-file=report.txt modules/
+          if [ -s report.txt ]; then
+            cat report.txt
+            exit 1
+          fi
