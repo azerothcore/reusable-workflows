@@ -8,6 +8,10 @@ on:
       module_branch:
         required: false
         type: string
+      module_path:
+        description: 'Folder inside the repo that holds the module (src/, conf/, ...), if not the repo root. Its name is used as the module name.'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -37,6 +41,14 @@ jobs:
           submodules: 'recursive'
           path: 'modules/${{ inputs.module_repo }}'
           ref: ${{ inputs.module_branch }}
+      - name: Use module subfolder
+        if: inputs.module_path != ''
+        env:
+          MODULE_REPO: ${{ inputs.module_repo }}
+          MODULE_PATH: ${{ inputs.module_path }}
+        run: |
+          mv "modules/$MODULE_REPO" "$RUNNER_TEMP/module-repo"
+          mv "$RUNNER_TEMP/module-repo/$MODULE_PATH" "modules/$(basename "$MODULE_PATH")"
       - name: Cache
         uses: actions/cache@v4
         with:

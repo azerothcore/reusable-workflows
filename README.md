@@ -18,3 +18,10 @@ jobs:
     with:
       module_repo: ${{ github.event.repository.name }}
 ```
+
+If the module isn't at the root of the repo, pass the folder that holds it:
+```yaml
+    with:
+      module_repo: ${{ github.event.repository.name }}
+      module_path: server-side/mod-my-module
+```
