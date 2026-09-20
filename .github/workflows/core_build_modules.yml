@@ -12,6 +12,10 @@ on:
         description: 'Folder inside the repo that holds the module (src/, conf/, ...), if not the repo root. Its name is used as the module name.'
         required: false
         type: string
+      module_data:
+        description: 'Archive (.zip, .tar.gz, .tgz) with the module''s server data (dbc/, maps/, vmaps/, mmaps/), copied over the client data before the dry run: a URL, or a path relative to the module repo root.'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -41,6 +45,44 @@ jobs:
           submodules: 'recursive'
           path: 'modules/${{ inputs.module_repo }}'
           ref: ${{ inputs.module_branch }}
+      - name: Unpack module data
+        id: module_data
+        if: inputs.module_data != ''
+        env:
+          MODULE_REPO: ${{ inputs.module_repo }}
+          MODULE_DATA: ${{ inputs.module_data }}
+        run: |
+          name="${MODULE_DATA%%[?#]*}"
+          case "$name" in
+            *.zip|*.tar.gz|*.tgz) ;;
+            *)
+              echo "module_data '$MODULE_DATA' must be a .zip, .tar.gz or .tgz archive"
+              exit 1
+              ;;
+          esac
+          if [[ "$MODULE_DATA" =~ ^https?:// ]]; then
+            archive="$RUNNER_TEMP/module-data-archive"
+            curl -fsSL --retry 3 -o "$archive" "$MODULE_DATA"
+          else
+            archive="modules/$MODULE_REPO/$MODULE_DATA"
+            if [[ ! -f "$archive" ]]; then
+              echo "module_data '$MODULE_DATA' is not a file in the module repo"
+              exit 1
+            fi
+          fi
+          data_dir="$RUNNER_TEMP/module-data"
+          mkdir "$data_dir"
+          case "$name" in
+            *.zip) unzip -q "$archive" -d "$data_dir" ;;
+            *) tar -xzf "$archive" -C "$data_dir" ;;
+          esac
+          # the archive may wrap the data folders in a parent folder
+          data_root="$(find "$data_dir" -type d -name dbc -printf '%d %h\n' | sort -n | head -1 | cut -d' ' -f2-)"
+          if [[ -z "$data_root" ]]; then
+            echo "module_data '$MODULE_DATA' has no dbc/ folder"
+            exit 1
+          fi
+          echo "dir=$data_root" >> "$GITHUB_OUTPUT"
       - name: Use module subfolder
         if: inputs.module_path != ''
         env:
@@ -61,6 +103,7 @@ jobs:
         with:
           CC: ${{ matrix.compiler.CC }}
           CXX: ${{ matrix.compiler.CXX }}
+          extra-data-dir: ${{ steps.module_data.outputs.dir }}
       - name: cpp check
         run: |
           sudo apt update -y
