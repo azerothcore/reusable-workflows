@@ -40,3 +40,25 @@ or a URL:
       module_repo: ${{ github.event.repository.name }}
       module_data: https://example.com/my-module/client-data.zip
 ```
+
+## codestyle
+
+The same checks, for modules that used to keep their own copy of `apps/ci/ci-codestyle.sh`:
+```yaml
+name: Codestyle Checks
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  codestyle:
+    uses: azerothcore/reusable-workflows/.github/workflows/codestyle_modules.yml@main
+```
+
+It checks `src` by default. To check other folders:
+```yaml
+    with:
+      check_paths: 'src tests'
+```
