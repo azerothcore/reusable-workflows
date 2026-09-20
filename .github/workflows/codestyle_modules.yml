@@ -1,0 +1,24 @@
+name: codestyle-modules
+on:
+  workflow_call:
+    inputs:
+      check_paths:
+        description: 'Folders to check, space separated'
+        required: false
+        default: 'src'
+        type: string
+
+jobs:
+  codestyle:
+    runs-on: ubuntu-latest
+    name: Check Codestyling
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: 'azerothcore/reusable-workflows'
+          path: 'reusable-workflows'
+      - name: Check Codestyling
+        env:
+          CHECK_PATHS: ${{ inputs.check_paths }}
+        run: bash reusable-workflows/apps/ci/ci-codestyle.sh $CHECK_PATHS
